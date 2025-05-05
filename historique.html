@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recherche d'Incidents Informatiques - UEMOA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        header {
+            background-color: #003366;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        main {
+            padding: 2rem;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #ddd;
+        }
+
+        th,
+        td {
+            padding: 0.5rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: #003366;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Historiques des Incidents Informatiques</h1>
+        <p>Recherche d'incidents dans l'espace UEMOA</p>
+    </header>
+    <main>
+        <input type="text" id="search" placeholder="Recherchez par banque, type d'incident ou description..." onkeyup="filterTable()">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Banque</th>
+                    <th>Type d'Incident</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody id="incidentTable">
+                <!-- Lignes d'exemple -->
+                <tr>
+                    <td>2024-09-15</td>
+                    <td>Banque A</td>
+                    <td>Piratage</td>
+                    <td>Accès non autorisé aux données des clients.</td>
+                </tr>
+                <tr>
+                    <td>2023-06-10</td>
+                    <td>Banque B</td>
+                    <td>Panne Système</td>
+                    <td>Interruption des services en ligne pendant 48 heures.</td>
+                </tr>
+                <tr>
+                    <td>2022-11-05</td>
+                    <td>Banque C</td>
+                    <td>Phishing</td>
+                    <td>Vol d'informations via des emails frauduleux.</td>
+                </tr>
+                <tr>
+                    <td>2025-01-12</td>
+                    <td>Banque D</td>
+                    <td>Malware</td>
+                    <td>Logiciel malveillant infiltré dans le système interne.</td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+
+    <script>
+        // Fonction pour charger les incidents depuis la base de données
+        function loadIncidents() {
+            fetch('get_incidents.php')  // Cette page PHP retourne les incidents en format JSON
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('incidentTable');
+                    tableBody.innerHTML = ''; // Vide le tableau avant de le remplir
+
+                    // Remplissage du tableau avec les données
+                    data.forEach(incident => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${incident.Date_Incident}</td>
+                            <td>${incident.Entreprise}</td>
+                            <td>${incident.Type_Incident}</td>
+                            <td>${incident.Description}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la récupération des incidents:', error);
+                });
+        }
+
+        // Fonction pour filtrer le tableau basé sur la recherche
+        function filterTable() {
+            const input = document.getElementById('search').value.toLowerCase();
+            const rows = document.querySelectorAll('#incidentTable tr');
+            rows.forEach(row => {
+                const cells = Array.from(row.getElementsByTagName('td'));
+                const match = cells.some(cell => cell.textContent.toLowerCase().includes(input));
+                row.style.display = match ? '' : 'none';
+            });
+        }
+
+        // Appeler la fonction pour charger les incidents au chargement de la page
+        window.onload = loadIncidents;
+    </script>
+</body>
+
+</html>

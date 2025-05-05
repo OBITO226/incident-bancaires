@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Statistiques des cyberattaques - UEMOA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 p-8">
+  <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">📊 Statistiques des cyberattaques dans l'espace UEMOA</h1>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Bar Chart -->
+    <div class="bg-white p-6 rounded shadow">
+      <h2 class="text-xl font-semibold mb-4 text-gray-800">🔒 Types d'attaques les plus fréquentes</h2>
+      <canvas id="barChart"></canvas>
+    </div>
+
+    <!-- Pie Chart -->
+    <div class="bg-white p-6 rounded shadow">
+      <h2 class="text-xl font-semibold mb-4 text-gray-800">📌 Répartition des cyberattaques (2024)</h2>
+      <canvas id="pieChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Radar Chart -->
+  <div class="bg-white p-6 rounded shadow mt-6">
+    <h2 class="text-xl font-semibold mb-4 text-gray-800">🛡️ Niveau d’exposition par secteur</h2>
+    <canvas id="radarChart"></canvas>
+  </div>
+
+  <!-- Littérature -->
+  <section class="mt-10 bg-white p-6 rounded shadow text-gray-800 max-w-4xl mx-auto leading-relaxed">
+    <h2 class="text-2xl font-bold mb-4">📘 Contexte et apport de la visualisation des données</h2>
+    <p>
+      La visualisation des données joue un rôle stratégique dans le domaine de la cybersécurité, notamment dans les zones à risque croissant comme l’espace UEMOA. Face à la complexité et à la diversité des cyberattaques, les représentations graphiques offrent une lecture synthétique et dynamique des phénomènes observés. Elles permettent non seulement de détecter des tendances, mais également de prioriser les ressources en fonction du niveau d’exposition ou de criticité des secteurs.
+    </p>
+    <p class="mt-4">
+      À travers l’usage de graphiques en barres, en camembert ou en radar, on peut :
+      <ul class="list-disc list-inside mt-2">
+        <li>Représenter les types d’attaques dominantes (phishing ciblé, ransomware, DDoS…)</li>
+        <li>Visualiser leur répartition sectorielle (banques, assurances, fintech…)</li>
+        <li>Identifier les secteurs les plus vulnérables et les plus souvent ciblés</li>
+      </ul>
+    </p>
+    <p class="mt-4">
+      Selon des rapports publiés par le CERT-UEMOA et d’autres instances telles que l’ENISA ou l’AFRINIC, les banques et les services financiers numériques sont les cibles prioritaires des cybercriminels dans la sous-région. Le recours à des outils de visualisation interactifs, comme Chart.js, permet de mieux traduire ces réalités à travers des interfaces conviviales destinées aux analystes, aux décideurs et aux partenaires institutionnels.
+    </p>
+    <p class="mt-4">
+      Ainsi, les tableaux de bord visuels ne sont pas uniquement esthétiques : ils deviennent de véritables outils d’aide à la décision pour renforcer les capacités de prévention et de réponse face aux cybermenaces régionales.
+    </p>
+  </section>
+
+  <!-- Scripts Chart.js -->
+  <script>
+    // Bar Chart
+    const barCtx = document.getElementById('barChart').getContext('2d');
+    new Chart(barCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Phishing ciblé', 'SIM Swap', 'Ransomware', 'DDoS', 'Fraude Mobile Banking', 'Fraude SWIFT', 'Skimming', 'Jackpotting'],
+        datasets: [{
+          label: 'Nombre estimé d’incidents (par gravité)',
+          data: [70, 55, 50, 53, 65, 30, 25, 20],
+          backgroundColor: [
+            '#6366F1', '#3B82F6', '#10B981', '#F59E0B',
+            '#EF4444', '#8B5CF6', '#EC4899', '#22D3EE'
+          ],
+          borderRadius: 5
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: {
+            display: true,
+            text: 'Attaques les plus fréquentes dans le secteur bancaire UEMOA'
+          }
+        }
+      }
+    });
+
+    // Pie Chart
+    const pieCtx = document.getElementById('pieChart').getContext('2d');
+    new Chart(pieCtx, {
+      type: 'pie',
+      data: {
+        labels: ['Ransomware (50%)', 'DDoS (53%)', 'Phishing (70%)', 'Fraude Mobile (65%)', 'Fraude SWIFT (30%)'],
+        datasets: [{
+          data: [50, 53, 70, 65, 30],
+          backgroundColor: ['#EF4444', '#F59E0B', '#3B82F6', '#10B981', '#8B5CF6']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom' }
+        }
+      }
+    });
+
+    // Radar Chart
+    const radarCtx = document.getElementById('radarChart').getContext('2d');
+    new Chart(radarCtx, {
+      type: 'radar',
+      data: {
+        labels: ['Banques', 'Assurances', 'FinTech', 'Télécoms', 'Administrations', 'TPE/PME'],
+        datasets: [{
+          label: 'Niveau d’exposition aux cyberattaques (échelle 0-100)',
+          data: [85, 70, 90, 65, 50, 40],
+          backgroundColor: 'rgba(59, 130, 246, 0.2)',
+          borderColor: 'rgba(59, 130, 246, 1)',
+          borderWidth: 2,
+          pointBackgroundColor: 'rgba(59, 130, 246, 1)'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top' }
+        },
+        scales: {
+          r: {
+            min: 0,
+            max: 100,
+            ticks: { stepSize: 20 }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

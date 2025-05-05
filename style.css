@@ -1,0 +1,185 @@
+/* Variables de couleurs */
+:root {
+    --primary: #003366;
+    --accent: #0059b3;
+    --light: #f4f4f9;
+    --white: #ffffff;
+    --blue-soft: #e0e7ff;
+    --text-dark: #333;
+    --success: #28a745;
+    --error: #dc3545;
+}
+
+/* Global */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background-color: var(--light);
+}
+
+header {
+    background-color: var(--primary);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+}
+
+h1, h2 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+h3 {
+    font-weight: 500;
+}
+
+main {
+    margin-left: 220px;
+    padding: 2rem;
+}
+
+main.shifted {
+    margin-left: 0;
+}
+
+footer {
+    background-color: var(--primary);
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 220px;
+    height: 100%;
+    background-color: var(--primary);
+    padding-top: 60px;
+    transition: transform 0.3s ease;
+}
+
+.sidebar.active {
+    transform: translateX(0);
+}
+
+.sidebar a {
+    color: white;
+    padding: 1rem;
+    display: block;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.sidebar a:hover {
+    background-color: var(--accent);
+}
+
+/* Recommandation */
+.recommendation {
+    background-color: var(--blue-soft);
+    margin: 1rem 0;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 6px solid var(--accent);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.recommendation h3 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.recommendation p {
+    margin-bottom: 1rem;
+}
+
+/* Formulaire */
+.form-container {
+    background-color: var(--blue-soft);
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 6px solid var(--accent);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+form label {
+    display: block;
+    margin: 1rem 0 0.5rem;
+}
+
+form textarea,
+form input {
+    width: 100%;
+    padding: 0.6rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+form button {
+    background-color: var(--accent);
+    color: white;
+    padding: 0.7rem 1.2rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+form button:hover {
+    background-color: #004a99;
+}
+
+/* Toast Notifications */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: var(--success);
+    color: white;
+    padding: 1rem;
+    border-radius: 5px;
+    display: none;
+    animation: slideIn 0.5s ease-out;
+}
+
+.toast.error {
+    background-color: var(--error);
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    main {
+        margin-left: 0;
+    }
+
+    main.shifted {
+        margin-left: 220px;
+    }
+}

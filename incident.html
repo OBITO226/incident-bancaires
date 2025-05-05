@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Incidents informatiques récurrents dans l'espace UEMOA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        #searchInput, .form-input, #addButton {
+            margin-bottom: 10px;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+        }
+        #addButton {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        #addButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
+   <script>
+    function filterTable() {
+        const input = document.getElementById("searchInput");
+        const filter = input.value.toUpperCase();
+        const table = document.getElementById("incidentTable");
+        const rows = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName("td");
+            let match = false;
+            for (let j = 0; j < cells.length; j++) {
+                if (cells[j].innerText.toUpperCase().includes(filter)) {
+                    match = true;
+                    break;
+                }
+            }
+            rows[i].style.display = match ? "" : "none";
+        }
+    }
+
+    function getTodayDate() {
+        const today = new Date();
+        const jour = String(today.getDate()).padStart(2, '0');
+        const mois = String(today.getMonth() + 1).padStart(2, '0');
+        const annee = today.getFullYear();
+        return `${jour}/${mois}/${annee}`;
+    }
+
+    function getTodayDateForDB() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`; // format MySQL
+    }
+
+    function remplirDate() {
+        const dateField = document.getElementById("date");
+        if (!dateField.value) {
+            dateField.value = getTodayDate();
+        }
+    }
+
+    function chargerIncidents() {
+        fetch("lister_incidents.php")
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.getElementById("incidentTable").getElementsByTagName("tbody")[0];
+                tbody.innerHTML = "";
+                data.forEach(incident => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td>${incident.entreprise}</td>
+                        <td>${incident.gravite}</td>
+                        <td>${incident.type_incident}</td>
+                        <td>${new Date(incident.date_incident).toLocaleDateString()}</td>
+                        <td>${incident.statut}</td>
+                    `;
+                });
+            });
+    }
+
+    function addIncident() {
+        const entreprise = document.getElementById("entreprise").value.trim();
+        const gravite = document.getElementById("gravite").value.trim();
+        const type = document.getElementById("type").value.trim();
+        const statut = document.getElementById("statut").value.trim();
+        const date = getTodayDateForDB();
+
+        if (!entreprise || !gravite || !type || !statut) {
+            alert("Veuillez remplir tous les champs.");
+            return;
+        }
+
+        fetch("ajouter_incident.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ entreprise, gravite, type, date, statut })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            chargerIncidents();
+            document.getElementById("incidentForm").reset();
+            document.getElementById("date").value = "";
+        })
+        .catch(() => alert("Erreur lors de l'ajout."));
+    }
+
+    // Charger incidents au chargement
+    window.onload = chargerIncidents;
+</script>
+
+</head>
+<body>
+    <h1>Incidents informatiques récurrents dans l'espace UEMOA</h1>
+
+    <!-- 🔍 Barre de recherche -->
+    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Rechercher une entreprise ou un incident...">
+
+    <!-- 📋 Tableau des incidents -->
+    <table id="incidentTable">
+        <thead>
+            <tr>
+                <th>Nom de l'Entreprise</th>
+                <th>Gravité</th>
+                <th>Type d'Incident</th>
+                <th>Date</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Banque Côte d'Ivoire</td>
+                <td>Élevée</td>
+                <td>Panne Systémique</td>
+                <td>06/04/2025</td>
+                <td>Résolu</td>
+            </tr>
+            <tr>
+                <td>Banque Sénégal</td>
+                <td>Moyenne</td>
+                <td>Cyberattaque</td>
+                <td>05/04/2025</td>
+                <td>En cours</td>
+            </tr>
+            <tr>
+                <td>Banque Mali</td>
+                <td>Faible</td>
+                <td>Erreur Réseau</td>
+                <td>04/04/2025</td>
+                <td>En investigation</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- 📝 Formulaire de saisie -->
+    <h2>Ajouter une nouvelle entreprise</h2>
+    <input type="text" id="entreprise" class="form-input" placeholder="Nom de l'entreprise" oninput="remplirDate()">
+    <input type="text" id="gravite" class="form-input" placeholder="Gravité (Ex : Faible, Moyenne, Élevée)">
+    <input type="text" id="type" class="form-input" placeholder="Type d'incident">
+    <input type="text" id="date" class="form-input" placeholder="Date" readonly>
+    <input type="text" id="statut" class="form-input" placeholder="Statut">
+    <button id="addButton" onclick="addIncident()">Ajouter l'incident</button>
+</body>
+</html>

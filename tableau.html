@@ -1,0 +1,339 @@
+<?php
+$role = $_SESSION['role'];
+$avatar = ($role === 'admin') ? '🛡️' : '👤';
+$badgeColor = ($role === 'admin') ? 'bg-red-600' : 'bg-blue-600';
+?>
+<div class="flex items-center space-x-3">
+  <div class="w-10 h-10 rounded-full flex items-center justify-center text-white <?= $badgeColor ?> text-xl">
+    <?= $avatar ?>
+  </div>
+  <div>
+    <h2 class="text-2xl font-bold text-indigo-800 dark:text-indigo-300">Bienvenue, 
+      <span class="text-black dark:text-white"><?= $_SESSION['utilisateur'] ?></span> !
+    </h2>
+    <p class="text-gray-700 dark:text-gray-300">Connecté en tant que 
+      <span class="font-semibold text-indigo-700 dark:text-indigo-400"><?= ucfirst($role) ?></span>
+    </p>
+  </div>
+</div>
+
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alertes et Statistiques</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- FontAwesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+</head>
+
+
+<body class="bg-white text-black">
+
+  <!-- SIDEBAR -->
+  <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-black text-white p-6 transform -translate-x-full transition-transform duration-300 z-50">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold">Menu</h2>
+      <button aria-label="Fermer le menu" onclick="closeSidebar()" class="text-white text-xl"><i class="fas fa-times"></i></button>
+    </div>
+    <ul class="space-y-3">
+      <li><a href="historique.php" class="block hover:text-gray-300">Historique_Incident</a></li>
+      <li><a href="vulnerabilites.php" class="block hover:text-gray-300">Vulnérabilité</a></li>
+      <li><a href="equipements.php" class="block hover:text-gray-300">Équipement touché</a></li>
+      <li><a href="logs.php" class="block hover:text-gray-300">Log_Incident</a></li>
+      <li><a href="deconnexion.php" class="block hover:text-red-400 font-semibold" id="logout-btn">Déconnexion</a></li>
+    </ul>
+  </div>
+
+  <!-- OVERLAY -->
+  <div id="overlay" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 hidden"></div>
+
+  <!-- HEADER -->
+  <header role="navigation" class="bg-white shadow-md py-3">
+    <div class="flex items-center justify-between px-4 md:px-8">
+      <!-- MENU -->
+      <button id="menu-toggle" aria-label="Ouvrir le menu" class="text-black text-2xl focus:outline-none">
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <!-- NAVIGATION CENTRALE -->
+      <div class="hidden md:flex flex-wrap justify-center items-center gap-3 text-sm">
+        <a href="tableau.php" class="nav-btn border border-black hover:bg-black hover:text-white py-2 px-3 rounded transition">Tableau de bord</a>
+        <a href="incident.php" class="nav-btn border border-black hover:bg-black hover:text-white py-2 px-3 rounded transition">Incident</a>
+        <a href="entreprise.php" class="nav-btn border border-black hover:bg-black hover:text-white py-2 px-3 rounded transition">Entreprises</a>
+        <a href="attaque.php" class="nav-btn border border-black hover:bg-black hover:text-white py-2 px-3 rounded transition">Attaque</a>
+        <a href="recommandation.php" class="nav-btn border border-black hover:bg-black hover:text-white py-2 px-3 rounded transition">Récommandation</a>
+        <a href="historique.php" class="nav-btn border border-black hover:bg-black hover:text-white py-2 px-3 rounded transition">Historique</a>
+        <a href="alerte.php" class="nav-btn border border-black hover:bg-black hover:text-white py-2 px-3 rounded transition">Alerte</a>
+      </div>
+
+      <!-- NOTIFICATIONS -->
+      <div class="relative">
+        <button id="notification-btn" aria-label="Voir les notifications" class="text-2xl text-black focus:outline-none">
+          <i class="fas fa-bell"></i>
+        </button>
+        <span id="notification-count" class="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-bounce">5</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- CARTES -->
+  <section class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 animate-fade-in">
+    <a href="incident.php" class="bg-white p-5 rounded-lg shadow-md block hover:bg-gray-100 transition">
+      <h3 class="text-xl font-bold mb-2 text-black">🔍 Consulter les incidents</h3>
+      <p class="text-gray-700">Accédez à une base de données mise à jour avec les derniers incidents de sécurité.</p>
+    </a>
+    <a href="statistiques.php" class="bg-white p-5 rounded-lg shadow-md block hover:bg-gray-100 transition">
+      <h3 class="text-xl font-bold mb-2 text-black">📊 Statistiques & tendances</h3>
+      <p class="text-gray-700">Visualisez l’évolution des menaces à travers des graphiques et tableaux interactifs.</p>
+    </a>
+    <div class="bg-white p-5 rounded-lg shadow-md">
+      <h3 class="text-xl font-bold mb-2 text-black">🚨 Signaler un incident</h3>
+      <p class="text-gray-700">Contribuez à la communauté en signalant un nouvel incident détecté.</p>
+    </div>
+  </section>
+
+  <!-- GRAPHIQUE -->
+  <section class="mt-10 bg-white p-6 mx-6 rounded-lg shadow-md border border-gray-200">
+    <h2 class="text-xl font-semibold mb-4 text-black">📈 Évolution des incidents (2024)</h2>
+    <canvas id="incidentChart" height="100"></canvas>
+    <canvas id="attaqueChart" class="my-10 max-w-md mx-auto"></canvas>
+    <canvas id="vulnerabiliteRadar" class="my-10 max-w-xl mx-auto"></canvas>
+
+
+  </section>
+  <section class="bg-white p-6 rounded-xl shadow-md mx-6 my-10">
+    <h2 class="text-2xl font-bold mb-4 text-indigo-700">❓ Foire aux questions</h2>
+    <details class="mb-2 border p-3 rounded">
+      <summary class="font-semibold cursor-pointer">Comment signaler un incident ?</summary>
+      <p class="mt-2 text-gray-700">Rendez-vous dans la section "Incident", remplissez le formulaire et soumettez.</p>
+    </details>
+    <details class="mb-2 border p-3 rounded">
+      <summary class="font-semibold cursor-pointer">Puis-je modifier mon mot de passe ?</summary>
+      <p class="mt-2 text-gray-700">Oui, via votre profil (bientôt disponible).</p>
+    </details>
+  </section>
+  
+
+  <!-- ALERTE -->
+  <section class="mt-10 mx-6 bg-red-100 border-l-4 border-red-600 text-red-800 p-5 rounded-lg shadow-sm animate-pulse">
+    <p class="font-semibold">⚠️ Alerte actuelle : Campagne active de phishing ciblant les services bancaires en ligne. Soyez vigilants !</p>
+  </section>
+
+  <!-- NOTIFICATIONS -->
+  <div id="notifications" class="absolute top-16 right-8 bg-white shadow-2xl rounded-xl w-72 p-4 hidden transition-all duration-300 border border-gray-200">
+    <h3 class="text-lg font-bold mb-4">Notifications</h3>
+    <ul>
+      <li class="text-gray-700 mb-2">Nouvel incident signalé à 10h30</li>
+      <li class="text-gray-700 mb-2">Phishing détecté sur un compte bancaire</li>
+      <li class="text-gray-700 mb-2">Vulnérabilité critique trouvée dans un serveur</li>
+      <li class="text-gray-700 mb-2">Mise à jour de sécurité requise</li>
+      <li class="text-gray-700 mb-2">Attaque par ransomware sur un client</li>
+    </ul>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script>
+    // ChartJS
+    const ctx = document.getElementById('incidentChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'],
+        datasets: [{
+          label: 'Nombre d’incidents',
+          data: [12, 70, 80, 95, 125, 23, 18, 25, 22, 200, 175, 135],
+          backgroundColor: 'rgba(79, 70, 229, 0.2)',
+          borderColor: 'rgba(79, 70, 229, 1)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top' },
+          title: { display: false }
+        }
+      }
+    });
+    const attaqueCtx = document.getElementById('attaqueChart').getContext('2d');
+new Chart(attaqueCtx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Phishing', 'Ransomware', 'DDoS', 'Malware', 'Zero-day'],
+    datasets: [{
+      label: 'Types d’attaques',
+      data: [40, 25, 15, 10, 10],
+      backgroundColor: [
+        '#4f46e5', '#dc2626', '#facc15', '#10b981', '#8b5cf6'
+      ],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom' }
+    }
+  }
+});
+new Chart(document.getElementById('vulnerabiliteRadar'), {
+  type: 'radar',
+  data: {
+    labels: ['Faibles', 'Modérées', 'Critiques', 'Corrigées', 'Non corrigées'],
+    datasets: [{
+      label: 'État des vulnérabilités',
+      data: [20, 30, 15, 40, 25],
+      backgroundColor: 'rgba(79,70,229,0.2)',
+      borderColor: '#4f46e5',
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    scales: {
+      r: {
+        beginAtZero: true
+      }
+    }
+  }
+});
+
+
+
+    // Sidebar toggle
+    const menuToggle = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('-translate-x-full');
+      overlay.classList.toggle('hidden');
+    });
+
+    window.closeSidebar = () => {
+      sidebar.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+    };
+
+    overlay.addEventListener('click', closeSidebar);
+
+    document.querySelectorAll('#sidebar a').forEach(link => {
+      link.addEventListener('click', () => {
+        closeSidebar();
+      });
+    });
+
+    // Notifications
+    const notificationBtn = document.getElementById('notification-btn');
+    const notifications = document.getElementById('notifications');
+    const notificationList = notifications.querySelector('ul');
+
+    notificationBtn.addEventListener('click', () => {
+      notifications.classList.toggle('hidden');
+      document.getElementById('notification-count').style.display = 'none';
+
+      fetch('fetch_notifications.php')
+        .then(response => response.json())
+        .then(data => {
+          notificationList.innerHTML = '';
+          if (data.length === 0) {
+            notificationList.innerHTML = '<li class="text-gray-500">Aucune notification.</li>';
+          } else {
+            data.forEach(n => {
+              const li = document.createElement('li');
+              li.className = 'text-gray-700 mb-2';
+              li.textContent = `${n.message}`;
+              notificationList.appendChild(li);
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Erreur de récupération des notifications :', error);
+        });
+    });
+
+    // Fermer les notifications quand on clique en dehors
+document.addEventListener('click', function(event) {
+  const isClickInside = notifications.contains(event.target) || notificationBtn.contains(event.target);
+  if (!isClickInside && !notifications.classList.contains('hidden')) {
+    notifications.classList.add('hidden');
+  }
+});
+
+
+    // Déconnexion
+    const logoutBtn = document.getElementById('logout-btn');
+    logoutBtn.addEventListener('click', function (e) {
+      if (!confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+        e.preventDefault();
+      }
+    });
+  </script>
+
+  <!-- Animation CSS -->
+  <style>
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-in {
+      animation: fade-in 0.6s ease-out both;
+    }
+  </style>
+  <script>
+    const toggle = document.getElementById('theme-toggle');
+    const icon = document.getElementById('theme-icon');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const currentTheme = localStorage.getItem('theme');
+
+    // Appliquer le thème stocké ou celui du système
+    if (currentTheme === 'dark' || (!currentTheme && prefersDark)) {
+        document.documentElement.classList.add('dark');
+        setMoonIcon();
+    } else {
+        setSunIcon();
+    }
+
+    toggle.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        if (document.documentElement.classList.contains('dark')) {
+            localStorage.setItem('theme', 'dark');
+            setMoonIcon();
+        } else {
+            localStorage.setItem('theme', 'light');
+            setSunIcon();
+        }
+    });
+
+    function setSunIcon() {
+        icon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 3v1m0 16v1m8.66-10h-1M4.34 12h-1m13.65-6.36l-.7.7M6.05 17.95l-.7.7m13.3 0l-.7-.7M6.05 6.05l-.7-.7M12 8a4 4 0 100 8 4 4 0 000-8z" />
+        `;
+    }
+
+    function setMoonIcon() {
+        icon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+        `;
+    }
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alertes - Vue Dynamique</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .loading {
+            text-align: center;
+            font-size: 16px;
+            color: #666;
+        }
+
+        .error {
+            color: red;
+        }
+
+        /* Style pour la section texte sur la cyberattaque */
+        .alert-container {
+            border: 1px solid #e74c3c;
+            padding: 20px;
+            background-color: #fbecec;
+            border-radius: 5px;
+        }
+
+        .alert-header {
+            font-size: 20px;
+            color: #c0392b;
+            margin-bottom: 10px;
+        }
+
+        .alert-section {
+            margin-top: 20px;
+        }
+
+        .alert-section h2 {
+            font-size: 18px;
+            color: #444;
+        }
+
+        .alert-section p {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Tableau des Alertes</h1>
+    </header>
+
+    <main>
+        <!-- Tableau des alertes dynamiques -->
+        <div id="alertContainer">
+            <p class="loading">Chargement des alertes en cours...</p>
+        </div>
+
+        <!-- Section texte sur la cyberattaque -->
+        <h1>Alerte Cyberattaque - Information Importante</h1>
+        <div class="alert-container">
+            <div class="alert-header">
+                ⚠️ Nouvelle cyberattaque détectée dans l'espace UEMOA !
+            </div>
+            <div class="alert-section">
+                <h2>Manifestation de l'attaque :</h2>
+                <p>Cette attaque se manifeste sous forme de tentatives de phishing ciblées et de logiciels malveillants infiltrés dans les systèmes informatiques bancaires.</p>
+            </div>
+            <div class="alert-section">
+                <h2>Propagation de l'attaque :</h2>
+                <p>Le malware est principalement propagé par des courriers électroniques contenant des liens frauduleux, ainsi que par des failles dans les systèmes de sécurité réseau.</p>
+            </div>
+            <div class="alert-section">
+                <h2>Dispositions à prendre :</h2>
+                <p>
+                    1. Renforcer les pare-feu et les systèmes de détection d'intrusion.<br>
+                    2. Sensibiliser les employés à reconnaître les courriers électroniques suspects.<br>
+                    3. Effectuer une analyse approfondie de tous les systèmes pour détecter les failles potentielles.<br>
+                    4. Mettre à jour les logiciels et les antivirus régulièrement.<br>
+                    5. Mettre en place une stratégie de sauvegarde des données pour éviter les pertes.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Fonction pour récupérer les alertes depuis le serveur PHP
+        function fetchAlerts() {
+            fetch('get_alertes.php')
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('alertContainer');
+                    container.innerHTML = '';
+
+                    // Vérifie si les données sont vides
+                    if (data.length === 0) {
+                        container.innerHTML = '<p class="error">Aucune alerte disponible.</p>';
+                        return;
+                    }
+
+                    // Crée le tableau et l'insère dans l'interface
+                    const table = document.createElement('table');
+                    const thead = document.createElement('thead');
+                    const tbody = document.createElement('tbody');
+
+                    // En-têtes du tableau
+                    thead.innerHTML = `
+                        <tr>
+                            <th>ID Alerte</th>
+                            <th>Date d'Envoi</th>
+                            <th>ID Incident</th>
+                            <th>ID Entreprise</th>
+                        </tr>
+                    `;
+
+                    // Remplissage des lignes du tableau
+                    data.forEach(alert => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${alert.ID_Alerte}</td>
+                            <td>${alert.Date_Envoi}</td>
+                            <td>${alert.ID_Incident}</td>
+                            <td>${alert.ID_Entreprise}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+
+                    // Assemble le tableau
+                    table.appendChild(thead);
+                    table.appendChild(tbody);
+                    container.appendChild(table);
+                })
+                .catch(error => {
+                    document.getElementById('alertContainer').innerHTML = '<p class="loading">Erreur lors du chargement des alertes.</p>';
+                    console.error('Erreur :', error);
+                });
+        }
+
+        // Appelle la fonction pour charger les données lorsque la page est prête
+        window.onload = fetchAlerts;
+    </script>
+</body>
+
+</html>

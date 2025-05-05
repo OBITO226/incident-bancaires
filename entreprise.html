@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Incidents informatiques UEMOA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Incidents informatiques - Espace UEMOA</h1>
+
+    <input type="text" id="searchInput" placeholder="Rechercher..." onkeyup="filterTable()">
+
+    <table id="incidentTable">
+        <thead>
+            <tr>
+                <th>Entreprise</th>
+                <th>Gravité</th>
+                <th>Type</th>
+                <th>Date</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <h2>Ajouter un incident</h2>
+    <form id="incidentForm" onsubmit="ajouterIncident(event)">
+        <input type="text" id="entreprise" placeholder="Nom de l'entreprise" oninput="remplirDate()" required>
+        <input type="text" id="gravite" placeholder="Gravité (Faible, Moyenne, Élevée)" required>
+        <input type="text" id="type" placeholder="Type d'incident" required>
+        <input type="text" id="date" placeholder="Date" readonly required>
+        <input type="text" id="statut" placeholder="Statut" required>
+        <button type="submit">Enregistrer</button>
+    </form>
+
+    <script>
+        function getTodayDate() {
+            const today = new Date();
+            const jour = String(today.getDate()).padStart(2, '0');
+            const mois = String(today.getMonth() + 1).padStart(2, '0');
+            const annee = today.getFullYear();
+            return `${jour}/${mois}/${annee}`;
+        }
+
+        function getDateForDB() {
+            const today = new Date();
+            return today.toISOString().split('T')[0]; // YYYY-MM-DD
+        }
+
+        function remplirDate() {
+            const dateInput = document.getElementById("date");
+            if (!dateInput.value) {
+                dateInput.value = getTodayDate();
+            }
+        }
+
+        function ajouterIncident(event) {
+            event.preventDefault();
+
+            const entreprise = document.getElementById("entreprise").value;
+            const gravite = document.getElementById("gravite").value;
+            const type = document.getElementById("type").value;
+            const statut = document.getElementById("statut").value;
+            const date = getDateForDB();
+
+            fetch("enregistrer_entreprise.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ entreprise, gravite, type, date, statut })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+                document.getElementById("incidentForm").reset();
+                document.getElementById("date").value = "";
+                chargerIncidents();
+            })
+            .catch(() => alert("Erreur lors de l'ajout."));
+        }
+
+        function chargerIncidents() {
+            fetch("recuperer_entreprises.php")
+                .then(res => res.json())
+                .then(data => {
+                    const tbody = document.querySelector("#incidentTable tbody");
+                    tbody.innerHTML = "";
+                    data.forEach(item => {
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `
+                            <td>${item.entreprise}</td>
+                            <td>${item.gravite}</td>
+                            <td>${item.type_incident}</td>
+                            <td>${new Date(item.date_incident).toLocaleDateString()}</td>
+                            <td>${item.statut}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                });
+        }
+
+        function filterTable() {
+            const filter = document.getElementById("searchInput").value.toUpperCase();
+            const rows = document.querySelectorAll("#incidentTable tbody tr");
+            rows.forEach(row => {
+                const text = row.innerText.toUpperCase();
+                row.style.display = text.includes(filter) ? "" : "none";
+            });
+        }
+
+        window.onload = chargerIncidents;
+    </script>
+</body>
+</html>

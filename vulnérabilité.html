@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journaux de Connexion</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        #journaux-container {
+            border: 1px solid #999;
+            background: #fff;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+        }
+        .log-entry {
+            padding: 10px;
+            margin-bottom: 5px;
+            border-bottom: 1px dotted #ccc;
+        }
+        .log-connexion {
+            color: green;
+        }
+        .log-deconnexion {
+            color: red;
+        }
+        .buttons-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        button {
+            margin: 5px;
+            padding: 10px 15px;
+            font-size: 14px;
+            border: 1px solid #999;
+            border-radius: 5px;
+            background-color: #eee;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Journaux de Connexion en Temps Réel</h1>
+
+    <div class="buttons-container">
+        <button onclick="filtrerLogs('tous')">Afficher Tout</button>
+        <button onclick="filtrerLogs('connexion')">Connexions</button>
+        <button onclick="filtrerLogs('deconnexion')">Déconnexions</button>
+    </div>
+
+    <div id="journaux-container"></div>
+    
+    <script>
+        const journauxContainer = document.getElementById("journaux-container");
+
+        // Fonction pour ajouter une entrée de journal
+        function ajouterJournal(ip, date, activite, type) {
+            const logEntry = document.createElement("div");
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.textContent = `IP: ${ip} | Date: ${date} | Activité: ${activite}`;
+            journauxContainer.appendChild(logEntry);
+            journauxContainer.scrollTop = journauxContainer.scrollHeight; // Scroll automatique
+        }
+
+        // Simulation en temps réel
+        setInterval(() => {
+            const ipAleatoire = `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+            const dateActuelle = new Date().toLocaleString();
+            const actions = [
+                { activite: "Connexion", type: "connexion" },
+                { activite: "Déconnexion", type: "deconnexion" }
+            ];
+            const actionAleatoire = actions[Math.floor(Math.random() * actions.length)];
+
+            ajouterJournal(ipAleatoire, dateActuelle, actionAleatoire.activite, actionAleatoire.type);
+        }, 2000);
+
+        // Filtrage des journaux
+        function filtrerLogs(type) {
+            const logs = document.querySelectorAll(".log-entry");
+            logs.forEach(log => {
+                if (type === "tous") {
+                    log.style.display = "block"; // Afficher tous
+                } else if (log.classList.contains(`log-${type}`)) {
+                    log.style.display = "block"; // Afficher le type sélectionné
+                } else {
+                    log.style.display = "none"; // Masquer les autres
+                }
+            });
+        }
+    </script>
+</body>
+</html>

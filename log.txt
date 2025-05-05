@@ -1,0 +1,8 @@
+Array
+(
+    [entreprise] => Banque Nationale de Développement Agricole (BNDA)
+    [gravite] => faible
+    [type] => Exfiltration de données
+    [date] => 2025-04-16
+    [statut] => Résolu
+)

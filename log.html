@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affichage des Journaux</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        #journaux-container {
+            border: 1px solid #ccc;
+            background: #fff;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+        }
+        .log-entry {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #999;
+            background-color: #eee;
+        }
+        .log-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Affichage des Journaux</h1>
+
+    <div id="journaux-container"></div>
+    
+    <script>
+        const journauxContainer = document.getElementById("journaux-container");
+
+        // Exemple de logs simulés
+        const logs = [
+            {
+                incident: "Erreur critique",
+                horodatage: "2025-04-09 15:00:12",
+                niveau: "Critique",
+                composant: "Serveur",
+                message: "Impossible de connecter à la base de données.",
+                ip: "192.168.0.1"
+            },
+            {
+                incident: "Avertissement système",
+                horodatage: "2025-04-09 15:05:33",
+                niveau: "Moyen",
+                composant: "Application",
+                message: "Utilisation mémoire élevée détectée.",
+                ip: "192.168.0.2"
+            },
+            {
+                incident: "Incident résolu",
+                horodatage: "2025-04-09 15:10:45",
+                niveau: "Bas",
+                composant: "Réseau",
+                message: "Reconnexion réussie au serveur distant.",
+                ip: "192.168.0.3"
+            }
+        ];
+
+        // Fonction pour afficher les logs
+        function afficherLogs() {
+            logs.forEach(log => {
+                const logEntry = document.createElement("div");
+                logEntry.className = "log-entry";
+
+                const logHeader = document.createElement("div");
+                logHeader.className = "log-header";
+                logHeader.textContent = `Incident: ${log.incident} | Niveau: ${log.niveau}`;
+
+                const logDetails = document.createElement("div");
+                logDetails.textContent = `Horodatage: ${log.horodatage} | Composant: ${log.composant} | IP: ${log.ip}`;
+
+                const logMessage = document.createElement("div");
+                logMessage.textContent = `Message: ${log.message}`;
+
+                logEntry.appendChild(logHeader);
+                logEntry.appendChild(logDetails);
+                logEntry.appendChild(logMessage);
+                journauxContainer.appendChild(logEntry);
+            });
+        }
+
+        // Affichage des logs à l'ouverture de la page
+        afficherLogs();
+    </script>
+</body>
+</html>
